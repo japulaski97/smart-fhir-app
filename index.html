@@ -105,7 +105,7 @@
       document.querySelector("h1").textContent = name + " — Patient record";
       document.title = name + " | Patient record";
       document.getElementById("gender").textContent = patient.gender || "Not recorded";
-      document.getElementById("birth-date").textContent = patient.birthDate || "Not recorded";
+      document.getElementById("birth-date").textContent = formatBirthDate(patient.birthDate);
       document.getElementById("age").textContent = formatAge(patient.birthDate);
     }
 
@@ -220,6 +220,23 @@
       var given = Array.isArray(name.given) ? name.given.join(" ") : "";
       var family = name.family || "";
       return (given + " " + family).trim() || "Name not recorded";
+    }
+
+    // No request: read Patient.birthDate as calendar parts, without time-zone conversion.
+    // Show a readable month and only the year/month/day precision recorded in FHIR.
+    function formatBirthDate(birthDate) {
+      if (!birthDate) {
+        return "Not recorded";
+      }
+      var parts = birthDate.split("-");
+      if (parts.length === 1) {
+        return parts[0];
+      }
+      var months = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+      var month = months[Number(parts[1]) - 1];
+      return parts.length === 2 ? month + " " + parts[0] :
+        month + " " + Number(parts[2]) + ", " + parts[0];
     }
 
     // No request: read Patient.birthDate to show age in years.
